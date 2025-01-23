@@ -1,0 +1,77 @@
+---
+title: "Meeting Notes and Data Exploration"
+author: "Anthony Griffith"
+date: "2024-02-22"
+output: html_document
+---
+
+## Introduction
+
+There were three main data sets that I looked at for this project. The first one, and the one I'm considering the most, is my results for the Immaculate Grid game by Baseball Reference. I wanted to see what teams give me the most trouble based on my scores from previous grids, and to see if there's any deeper connection involved.
+
+The second data set I focused on was also baseball related. I wanted to look at every MLB team's payroll and their wins and losses record over the past decade. I wanted to see if a team was making the most out of what they are allowed and creating wins on a fixed amount. A team is only as good as the players they can afford, so I was curious to see which teams were being efficient and which ones weren't.
+
+The final data set I looked at was an educational data set. I was curious to see how many college graduates actually got a job in the field that they majored in while studying in college. I also wanted to know if they were satisfied with their job, regardless of whether they work in their field of expertise or not.
+
+## Meeting Update
+
+In the last instructor meeting regarding this project, we had talked about focusing primarily on the Immaculate Grid data set. We had first talked about finding a way to record the data in Excel, and then getting the data into R so that I can play around with it. The challenge wasn't recording the data into Excel, the challenge was finding a way to record it so I could use it in R. The best way I found to go about it was to record what teams and categories showed up each day, the overall score from each day, and how many total times each team and category appeared on the grid. It was a pretty tedious process getting everything put into Excel but I got it together.
+
+As far as the other projects go, we briefly touched on them at the first meeting. We discussed what the main question for the projects was and took a look at a potential data set for each one. However, the focus was primarily on the Immaculate Grid project.
+
+## Data Cleaning and Exploration
+
+I was able to get my excel spreadsheets into R so that I can try to create graphs with them. One of the problems that I have is that I'm still trying to learn and understand R as I am looking at the data for the project. I had some ideas for what I wanted the graphs to look like, but I wasn't able to create the graphs the way I wanted to. I'm also not entirely sure why R can't find the data sets when I was able to import them all into the studio.
+
+```{r}
+library(readxl)
+library(ggplot2)
+library(tidyverse)
+```
+
+The first thing I did was get ggplot2 and tidyverse up and running. I also decided to run readxl so that R would be able to read my spreadhseets.
+
+
+```{r}
+data(IG_TeamAppear)
+```
+
+This is the dataset for the appearances made by each team and when they showed up on the grid. I intend for this graph to be a sort of dot plot, with the dates on the x-axis and the teams on the y-axis. Every dot would represent an appearance on the grid.
+
+
+```{r}
+data(IG_TeamAppNum)
+```
+
+This dataset shows the number of times that each team appears on the grid. I wanted this to be a bar graph with the teams on the x-axis and the number of times on the y-axis.
+
+
+```{r}
+data(IG_CatApp)
+```
+
+This dataset is similar to the first dataset, except instead of teams it's award categories. I want this graph to be shown in the exact same way as the Team Appearance set: a dot plot with the date on the x-axis and teams on the y-axis.
+
+
+```{r}
+data(IG_CatAppNum)
+```
+
+This set is also similar to the TeamAppNum dataset. I want to apply the bar graph concept with the teams on the x-axis and number of appearances on the y-axis.
+
+
+```{r}
+data(IG_TotalScore)
+```
+
+This dataset shows the score for each day that I did the grid, as well as the average score from the course of the month. I imagine this set working well as a line graph, with the dates on the x-axis and the numerical score on the y-axis. The line shows a connection between the scores, and it would also show any improvements or setbacks in scores over the time span.
+
+## Initial Results
+
+Even though I wasn't able to create graphs and look at the data visually, I was still able to recognize some patterns and interesting information just by scanning and inserting the data onto the spreadsheets and into R Studio.
+
+Something that I noticed about the number of appearances was that teams tended to appear around 4-6 times during the month, and categories tended to appear anywhere from once to four times. The only exception to teams was the Seattle Mariners, where they only appeared three times in the month.
+
+Another thing that I found interesting was that I was able to get some of my better scores in the middle of the month, as opposed to the beginning or the end. I couldn't tell you exactly why it was trending this way, but it might have something to do with me getting used to playing the game everyday and seeing teams match up with other teams and categories more frequently.
+
+My next step is to focus on making visual graphs so that I can more clearly understand the data and be able to spot even more patterns and trends within the data sets. Once that happens, I can spend more time diving even further into my questions so that I can start to find some potential answers.
