@@ -1,3 +1,4 @@
+#Distance from each team, number of appearances
 ggplot(TeamAppNumDivDist, aes(x = Distance,
                               y = reorder(Team, Distance),
                               fill = Appearance))+
@@ -11,6 +12,7 @@ ggplot(TeamAppNumDivDist, aes(x = Distance,
   theme(legend.position = "bottom")+
   guides(fill = guide_legend("# of Appearances"))
 
+#Category appearances
 ggplot(CatAppNumC, aes(x = reorder(Milestone, Appearance), y = Appearance, fill = Category))+
   geom_col()+
   coord_flip()+
@@ -20,6 +22,7 @@ ggplot(CatAppNumC, aes(x = reorder(Milestone, Appearance), y = Appearance, fill 
   xlab("Milestones")+
   ylab("Appearance Numbers")
 
+#Daily grid scores
 ggplot(TotalScore, aes(x = Date, y = Score))+
   geom_line(color = "grey")+
   geom_point(color = "blue")+
@@ -30,6 +33,7 @@ ggplot(TotalScore, aes(x = Date, y = Score))+
           subtitle = "Scores Above 700 Raise Questions")+
   theme(axis.text.x = element_text(angle = 0))
 
+#Average team scores, distance, appearances
 ggplot(NewScoreDist2, aes(x = AverageScore,
                           y = reorder(Team, AverageScore),
                           color = Distance,
@@ -50,6 +54,7 @@ ggplot(NewScoreDist2, aes(x = AverageScore,
   xlab("Average Team Grid Score")+
   ylab("Teams")
 
+#Average category scores, appearances
 ggplot(ScoreCatNew, aes(x = AverageScore,
                            y = reorder(Milestone, AverageScore),
                            color = Category,
