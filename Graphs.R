@@ -65,5 +65,5 @@ ggplot(ScoreCatNew, aes(x = AverageScore,
        statistic categories and the two
        highest awards categories.")+
   xlab("Average Score")+
-  ylab("Milestone")
+  ylab("Milestone") 
 
