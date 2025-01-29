@@ -7,6 +7,47 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+library(dplyr)
+library(GGally)
+library(ggformula)
+library(ggfortify)
+library(ggplot2)
+library(mosaic)
+library(RColorBrewer)
+library(readxl)
+library(tidyverse)
+library(gghighlight)
+```
+
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+TotalScore <- read_excel("Immaculate Grid.xlsx", 
+    sheet = "Total Score", col_types = c("date", 
+        "numeric"))
+
+TeamAppNumDivDist <- read_excel("Immaculate Grid.xlsx", 
+    sheet = "Team App. #", col_types = c("text", 
+        "text", "numeric", "numeric"))
+
+NewScoreDist2 <- read_excel("Immaculate Grid.xlsx", 
+    sheet = "Score and Team Distance", range = "A1:F31", 
+    col_types = c("text", "numeric", "numeric", 
+        "text", "text", "numeric"))
+
+TeamAvgDAW <- read_excel("Immaculate Grid.xlsx", 
+    sheet = "Score and Team Distance (2)", 
+    range = "A1:F11", col_types = c("text", 
+        "numeric", "numeric", "numeric", 
+        "numeric", "numeric"))
+
+ScoreCatNew <- read_excel("Immaculate Grid.xlsx", 
+    sheet = "Score and Categories", range = "A1:D22", 
+    col_types = c("text", "numeric", "text", 
+        "text"))
+
+HighScoreCat2 <- read_excel("Immaculate Grid.xlsx", 
+    sheet = "High Score Categories", range = "A1:D8", 
+    col_types = c("text", "numeric", "text", 
+        "text"))
 ```
 
 # What is the Immaculate Grid?
@@ -28,30 +69,149 @@ In order to collect the data, I completed every grid in the month of July 2023 a
 
 # Daily Grid Scores
 
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+TotalScore <- TotalScore %>%
+  mutate(
+    Date = as.Date(Date),
+    Date = c(seq.Date(as.Date("2024-07-01"), as.Date("2024-07-10"), by = "day"),  
+             rep(as.Date("2024-07-11"), 2),
+             seq.Date(as.Date("2024-07-12"), as.Date("2024-07-31"), by = "day"))
+  )
 
+ggplot(TotalScore, aes(x = Date, y = Score))+
+  geom_line(color = "grey")+
+  geom_point(color = "blue")+
+  geom_smooth(se = FALSE)+
+  scale_x_date(
+    breaks = seq.Date(from = min(TotalScore$Date), to = max(TotalScore$Date), by = "day"),
+    labels = scales::date_format("%b %d"),
+    minor_breaks = NULL)+
+  scale_y_continuous(limits = c(0, 900), 
+                     breaks = c(0, 100, 200, 300, 400, 500, 600, 700, 800, 900))+
+  ggtitle("Total Grid Scores by Daily Score in July")+
+  theme(axis.text.x = element_text(angle = 90),
+        panel.grid.minor = element_blank())
+```
+
+As you can see here, my scores varied pretty drastically day by day. However, it is worth noting that my average score decreased in the middle of the month, but increased towards the end of it. Since my average score was the highest at the beginning of July, I do want to look at the scores that are above 700, since those tend to have the greatest negative impact.
 
 # Assessment of Teams
 
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+ggplot(TeamAppNumDivDist, aes(x = Distance,
+                              y = reorder(Team, Distance),
+                              fill = Appearance))+
+  geom_col()+
+  theme(axis.text.x = element_text(angle = 0),
+        legend.position = "right")+
+  ggtitle("Grid Appearances in July 2023 for All 30 MLB Teams",
+          subtitle = "Ordered by distance (in miles) from Williston, Forida")+
+  xlab("Distance")+
+  ylab("Teams")+
+  theme(legend.position = "bottom")+
+  guides(fill = guide_legend("# of Appearances"))
+```
+
+This graph shows the mileage between my hometown and the location of every team's stadium, along with the number of times they have appeared. My main reason for starting with this kind of graph is that I wanted to try and see if there was any connection between my location and the number of times a team appeared on a grid. As you can tell, it looks like the teams are chosen at random, so I decided to dive a little deeper.
+
 ## Team Scoring
+
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+ggplot(NewScoreDist2, aes(x = DistanceNum,
+                          y = reorder(Team, DistanceNum),
+                          color = AverageScore,
+                          shape = Appearance))+
+  geom_point(size = 4)+
+  scale_shape_manual(values = c(15, 16, 17, 18))+
+  scale_color_gradient(low = "black", high = "#5dade2")+
+  labs(shape = "# of Appearances", color = "Average Grid Score")+
+  theme(axis.text.x = element_text(angle = 0),
+        legend.position = "right",
+        panel.background = element_rect(fill = "lightgrey",
+                                        color = "lightgrey"),
+        plot.caption = element_text(hjust = 0.5))+
+  labs(title = "Average Grid Score for Each MLB Team in July 2023",
+       subtitle = "Comparing Distance and Average Team Score",
+       caption = "We are going to dive deeper into the 10 teams with the highest average grid score.")+
+  xlab("Distance (in miles)")+
+  ylab("Teams")
+```
+
+Now this graph still shows the distance in miles and the number of appearances, but now it adds in my average grid score for each team. I wanted to see if mileage plays any sort of factor in my success or failures for teams. You will notice that teams with a high average grid score have a much brighter point color on the graph. I've decided to choose the ten teams with the worst average score and dive into those teams specifically. The teams I am looking at are the Atlanta Braves, Baltimore Orioles, New York Yankees, Cincinnati Reds, Cleveland Guardians, Seattle Mariners, Pittsburgh Pirates, Chicago White Sox, St. Louis Cardinals, and Kansas City Royals.
+
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+ggplot(TeamAvgDAW, aes(x = Wins,
+                       y = reorder(Team, Wins),
+                       color = AverageScore))+
+  geom_point(size = 10)+
+  theme(axis.text.x = element_text(angle = 0),
+        legend.position = "right")+
+  ggtitle("More Team Wins Lead to Lower Average Grid Scores",
+          subtitle = "My 10 Worst Average Team Scores")+
+  ylab("Teams")+
+  xlab("Team Wins through July 2023")
+```
+
+For the final graph in the team portion of this exploration, I chose the ten teams I just mentioned and showcased the number of wins they had at the end of the month of July in 2023, and added my average grid score. The three teams with my worst grid scores are the Kansas City Royals, St. Louis Cardinals, and Cleveland Guardians. You will also notice that those three teams are in the bottom half of this list for team wins.
 
 ## Takeaways
 
-Surprisingly, there is no definite trend where geographical location and distance apart from teams will increase/decrease scores. However, my top ten worst teams’ average scores were slightly dependent on team wins through July 2023. I think this is directly caused by the amount of success and real life publicity that teams can have. When teams win, they get more publicity. More publicity leads to more player knowledge, and more player knowledge leads to lower scores. Another factor that I wanted to try and take into account was the amount of times that each team appeared on the grid, but the number of appearances on the grid don’t seem to have a massive impact on scores either, since almost every team appears around 4-6 times.
+Surprisingly, there is no definite trend where geographical location and distance apart from teams will increase/decrease scores. However, my top ten worst teams' average scores were slightly dependent on team wins through July 2023. I think this is directly caused by the amount of success and real life publicity that teams can have. When teams win, they get more publicity. More publicity leads to more player knowledge, and more player knowledge leads to lower scores. Another factor that I wanted to try and take into account was the amount of times that each team appeared on the grid, but the number of appearances on the grid don't seem to have a massive impact on scores either, since almost every team appears around 4-6 times.
 
 # Assessment of Milestones
 
+Before I start showing the milestone data, there is something to note here. I've placed each milestone into it's own category; it is either an award or a statistic. An award is a title or physical achievement that a player can earn over the course of their career. A statistic is a numerical highlight that is achieved. For example, having a season with 200 or more strikeouts is a statistic, but winning a Cy Young for that season is an award.
+
+keep color palette the same for next smaller graph 
 ## Milestone Scoring
+
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+ggplot(ScoreCatNew, aes(x = AverageScore,
+                           y = reorder(Milestone, AverageScore),
+                           color = Category,
+                           shape = Appearance))+
+  geom_point(size = 4)+
+  scale_shape_manual(values = c(15, 16, 17, 18))+
+  theme(legend.position = "bottom",
+        plot.caption = element_text(hjust = 0.5))+
+  labs(title = "Average Score for Each Milestone",
+          subtitle = "With Relation to Milestone Category
+      and Number of Appearances",
+       caption = "We're going to focus on the five highest
+       statistic categories and the two
+       highest awards categories.")+
+  xlab("Average Score")+
+  ylab("Milestone") 
+```
+
+This graph shows my average score for each milestone, as well as how many times they appeared on the grid. Although more statistics appear on the grid as opposed to awards, it still seems like there is an even split between how many times a given milestone will appear. In order to make the rest of the exploration equal, I'm going to choose the five statistics and two awards with the highest average grid scores. The five statistics are .300+ career batting average, 200+ hits in a season, 300+ career pitching wins, 3000+ career batting hits, and 3000+ career pitching strikeouts; the two awards are Rookie of the Year and Cy Young.
+
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+ggplot(HighScoreCat2, aes(x = AverageScore,
+                          y = reorder(Milestone, AverageScore),
+                          color = Category,
+                          shape = Appearance))+
+  geom_point(size = 10)+
+  scale_shape_manual(values = c(15, 16, 17))+
+  theme(legend.position = "right")+
+  labs(title = "More Grid Appearances Result in Lower Average Scores",
+       subtitle = "My Seven Worst Milestone Average Scores")+
+  xlab("Average Score")+
+  ylab("Milestone")
+```
+
+This final graph is almost the exact same as the previous one, except it only shows the seven milestones I had mentioned before. An obvious trend here, unlike players, is that the number of appearances increases as the average score decreases.
 
 ## Takeaways
 
 Unlike teams, the number of appearances play a decently sized role when it comes to the milestones. However, the kind of milestone also comes into play as well. It seems as if any kind of career statistical landmark (e.g. .300+ AVG C, 3000+ H C, 3000+ K C) poses more of a challenge than a seasonal statistical achievement (e.g. 30+ SB S, 200+ K S, .300+ AVG S), which is just due to the fact that seasonal achievements happen more often than career ones do; you would have to retire with certain landmarks for them to be considered final and unchangeable.
 
-Although, I did notice that the number of appearances do have more of an effect on seasonal awards (e.g. CY, GG). These awards don’t come around until the end of the season. A six-to-seven month time span from the end of the last season to the middle of the next season leaves a lot of room to forget people’s achievements. Although, if you can remember them, they do a good amount of work in making scores better.
+Although, I did notice that the number of appearances do have more of an effect on seasonal awards (e.g. CY, GG). These awards don't come around until the end of the season. A six-to-seven month time span from the end of the last season to the middle of the next season leaves a lot of room to forget people's achievements. Although, if you can remember them, they do a good amount of work in making scores better.
 
 # Final Thoughts
 
-The Immaculate Grid relies on historical team knowledge and skill just as much as it relies on popularity of players, teams, and milestones. The three teams that cause me the most problems are the Kansas City Royals, Cleveland Guardians, and St. Louis Cardinals. These teams didn’t win many games leading up to July of 2023, and the lack of publicity caused me to lose interest and eventually lose track of these team’s players. The three categories that caused me the most problems were the 200+ Hit Season, 300+ Hit Career, and the Cy Young award winners. These categories showed up often on the grid and on top of that, don’t have many players that achieved these feats.
+The Immaculate Grid relies on historical team knowledge and skill just as much as it relies on popularity of players, teams, and milestones. The three teams that cause me the most problems are the Kansas City Royals, Cleveland Guardians, and St. Louis Cardinals. These teams didn't win many games leading up to July of 2023, and the lack of publicity caused me to lose interest and eventually lose track of these team's players. The three categories that caused me the most problems were the 200+ Hit Season, 300+ Hit Career, and the Cy Young award winners. These categories showed up often on the grid and on top of that, don't have many players that achieved these feats.
 
-This project, in my eyes, was very interesting to create. I  had to put the data into tables by hand and then be able to make the graphics in order to find relationships. On top of that, a lot of the relationships I expected to find didn't really end up making much of a difference at all. While some of these assumptions you could make on your own, it was still pretty cool to be able to physically see the multiple relationships that can lead to good and bad scores on this game. 
+This project, in my eyes, was very interesting to create. I had to put the data into tables by hand and then be able to make the graphics in order to find relationships. On top of that, a lot of the relationships I expected to find didn't really end up making much of a difference at all. While some of these assumptions you could make on your own, it was still pretty cool to be able to physically see the multiple relationships that can lead to good and bad scores on this game.
 
 As the game continues to grow (the website already has grids for more professional sports), more and more people are going to be asking the same questions I did. In my eyes, that's an awesome problem to have because it forces people to keep coming back, while also helping them learn more about sports history in a way that's engaging and entertaining.
