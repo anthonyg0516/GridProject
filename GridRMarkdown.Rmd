@@ -2,7 +2,7 @@
 title: "My Statistical Breakdown of Immaculate Grid Success"
 author: "Anthony Griffith"
 date: "2025-01-24"
-output: html_document
+output: github_document
 ---
 
 ```{r setup, include=FALSE}
